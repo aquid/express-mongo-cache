@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const DocModel = require('./../datasource/doc-schema');
+const Document = require('../common/models/doc-model');
 
 /**
  * Get All the key that are present in the cache and are not expired
  */
 router.get('/', function(req, res) {
-    DocModel.findAllKey()
+    Document.findAllKey()
         .then((docs) => {
             res.status(200).send(docs);
         })
@@ -19,7 +19,7 @@ router.get('/', function(req, res) {
  * Get all the data for a give key passed in the url
  */
 router.get('/:key', function(req, res) {
-    DocModel.findOrCreateKey(req.app, req.params.key)
+    Document.findOrCreateKey(req.app, req.params.key)
         .then((doc) => {
             res.status(201).send(doc);
         })
@@ -33,7 +33,7 @@ router.get('/:key', function(req, res) {
  */
 router.post('/', (req, res) => {
     if(req.body && req.body.key){
-        DocModel.findOrCreateKey(req.body.key)
+        Document.findOrCreateKey(req.body.key)
             .then((response) => {
                 res.res.status(201).send(response);
             })
@@ -51,7 +51,7 @@ router.post('/', (req, res) => {
  * Delete cache for a given key
  */
 router.delete('/:key', (req, res) => {
-    DocModel.deleteOne({key: req.params.key})
+    Document.deleteOne({key: req.params.key})
         .then((deleted) => {
             res.status(200).send(deleted);
         })
@@ -65,7 +65,7 @@ router.delete('/:key', (req, res) => {
  * Delete all the keys and their data
  */
 router.delete('/', (req, res) => {
-    DocModel.deleteMany({})
+    Document.deleteMany({})
         .then((deleted) => {
             res.status(200).send(deleted);
         })
