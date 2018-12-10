@@ -9,7 +9,8 @@ $ npm install express-generator -g
 
 ## Express Mongo Cache Sandbox
 
-This is a simple application using express.js and mongo used as a simple cache system. This library for using mongo is [Mongoose](https://mongoosejs.com/). This library provides you with some greate features which makes a lot of our work easier.
+This is a simple application using express.js and mongo used as a simple cache system. This library for using mongo is [Mongoose](https://mongoosejs.com/). This library provides you some great features which can make a lot of work easier.
+There is also cache limiting feature included in this code, where old cache will be overridden with new incoming cache keys after reaching a certain threshold limit. 
 
 
 ### Setup the config

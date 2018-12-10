@@ -73,13 +73,12 @@ function updateOldCacheKey(model, key) {
     let random = uid();
     return model.findOne({}).sort({"date": 1})
         .then((old) => {
-            return model.updateOne({key: old.key}, {key: key, data: random, create: DEFAULT_TTL, date: new Date() })
+            return model.updateOne({key: old.key}, {key: key, data: random, create: DEFAULT_TTL, date: new Date() }, { runValidators: true })
         })
         .then((response) => {
             return model.findOne({key: key});
         })
         .catch((error) => {
-            log(error);
             return Promise.reject(error);
         });
 }

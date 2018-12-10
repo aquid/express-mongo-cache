@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const utils = require('./utils');
 const Schema = mongoose.Schema;
-const debug = require('debug')('fc-express-mongo:datasource:schema');
 
 /**
  * Schema of the document with key and other values
@@ -14,15 +13,16 @@ let docSchema = new Schema({
 });
 
 
+
 /**
  * This function is finds or create a given key.
  * It also checks for valid TTL and if the ttl
  * is expired it updates the key first and then
  * send the response
  *
- * @param app
- * @param key
- * @param callback
+ * @param app - the global app object
+ * @param key - key that you want to fetch
+ * @param callback - {optional}
  * @return {*}
  */
 docSchema.statics.findOrCreateKey = function(app, key, callback){
@@ -63,7 +63,7 @@ docSchema.statics.findOrCreateKey = function(app, key, callback){
  * in the cache except those whose TTL is not
  * expired.
  *
- * @param callback
+ * @param callback - {optional}
  * @return {*}
  */
 docSchema.statics.findAllKey = function(callback){

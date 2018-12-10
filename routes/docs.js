@@ -8,10 +8,10 @@ const DocModel = require('./../datasource/doc-schema');
 router.get('/', function(req, res) {
     DocModel.findAllKey()
         .then((docs) => {
-            res.send(docs);
+            res.status(200).send(docs);
         })
         .catch((error) => {
-            res.send(error);
+            res.res.status(400).send({error: error || 'Unable to find all the keys, Please try again later.'});
         });
 });
 
@@ -21,10 +21,10 @@ router.get('/', function(req, res) {
 router.get('/:key', function(req, res) {
     DocModel.findOrCreateKey(req.app, req.params.key)
         .then((doc) => {
-            res.send(doc);
+            res.status(201).send(doc);
         })
         .catch((error) => {
-            res.status(400).send({error: error});
+            res.status(400).send({error: error || 'Unable to get cache data for given key'});
         });
 });
 
@@ -35,10 +35,10 @@ router.post('/', (req, res) => {
     if(req.body && req.body.key){
         DocModel.findOrCreateKey(req.body.key)
             .then((response) => {
-                res.send(response);
+                res.res.status(201).send(response);
             })
             .catch((error) => {
-                res.status(400).send({error: error});
+                res.status(400).send({error: error || 'Something went wrong'});
             });
     }
     else {
@@ -53,10 +53,10 @@ router.post('/', (req, res) => {
 router.delete('/:key', (req, res) => {
     DocModel.deleteOne({key: req.params.key})
         .then((deleted) => {
-            res.send(deleted);
+            res.status(200).send(deleted);
         })
         .catch((err) => {
-            res.status(400).send({error: err});
+            res.status(400).send({error: err || 'Error while deleting'});
         })
 });
 
@@ -67,10 +67,10 @@ router.delete('/:key', (req, res) => {
 router.delete('/', (req, res) => {
     DocModel.deleteMany({})
         .then((deleted) => {
-            res.send(deleted);
+            res.status(200).send(deleted);
         })
         .catch((err) => {
-            res.status(400).send({error: err});
+            res.status(400).send({error: err || 'Error while deleting'});
         })
 });
 
