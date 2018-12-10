@@ -2,7 +2,9 @@ var express = require('express');
 var router = express.Router();
 let DocModel = require('./../datasource/doc-schema');
 
-/* GET users listing. */
+/**
+ * Get All the key that are present in the cache and are not expired
+ */
 router.get('/', function(req, res) {
     DocModel.findAllKey()
         .then((docs) => {
@@ -13,8 +15,10 @@ router.get('/', function(req, res) {
         });
 });
 
+/**
+ * Get all the data for a give key passed in the url
+ */
 router.get('/:key', function(req, res) {
-    console.log('req.params.key',req.params.key);
     DocModel.findOrCreateKey(req.params.key)
         .then((doc) => {
             res.send(doc);
@@ -24,6 +28,9 @@ router.get('/:key', function(req, res) {
         });
 });
 
+/**
+ * Create ot update a key with new data and ttl
+ */
 router.post('/', (req, res) => {
     if(req.body && req.body.key){
         DocModel.findOrCreateKey(req.body.key)
@@ -39,6 +46,10 @@ router.post('/', (req, res) => {
     }
 });
 
+
+/**
+ * Delete cache for a given key
+ */
 router.delete('/:key', (req, res) => {
     DocModel.deleteOne({key: req.params.key})
         .then((deleted) => {
@@ -49,6 +60,10 @@ router.delete('/:key', (req, res) => {
         })
 });
 
+
+/**
+ * Delete all the keys and their data
+ */
 router.delete('/', (req, res) => {
     DocModel.deleteMany({})
         .then((deleted) => {

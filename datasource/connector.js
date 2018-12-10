@@ -8,7 +8,7 @@ const utils = require('./utils');
  * Initialize the datasource with the configurable settings and return
  * @param {object} app
  * @param {object} settings
- * @param {function} callback callback
+ * @param {function} callback callback {optional}
  */
 module.exports.initialize = (app, settings, callback) => {
     callback = callback || utils.createPromiseCallback();

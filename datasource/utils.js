@@ -1,21 +1,34 @@
 const log = require('debug')('fc-express-mongo:datasource:utils');
 const uid = require('uuid/v1');
 let Promise = require('bluebird');
-let DEFAULT_TTL = 900;
+let DEFAULT_TTL = 900; //TODO: Take this from a config object or ENV variable
 
-
+/**
+ * Export all the utility functions that are needed
+ * to avoid duplication
+ */
 exports.createNewCache = createNewCache;
-exports.updateCacheWithTrl = updateCacheWithTrl;
+exports.updateCacheWithTtl = updateCacheWithTtl;
 exports.createPromiseCallback = createPromiseCallback;
 exports.validateTtl = validateTtl;
 
 
-function updateCacheWithTrl(model, key){
+/**
+ * This function updates the ttl value for a given key.
+ * If the key has expired ttl it will update the key
+ * and then send the response
+ *
+ *
+ * @param model - the model on which the call will be made
+ * @param key - key that needs to be updated
+ * @return {Promise<any | void>}
+ */
+function updateCacheWithTtl(model, key){
     log('Cache Expired');
     let random = uid();
-    return model.updateOne({key: key}, {data: random, ttl: DEFAULT_TTL})
+    return model.updateOne({key: key}, {data: random, create: DEFAULT_TTL, date: new Date() })
         .then((response) => {
-            console.log(response);
+            log('Cache Hit');
             return model.findOne({key: key});
         })
         .catch((error) => {
@@ -23,13 +36,20 @@ function updateCacheWithTrl(model, key){
         });
 }
 
+
+/**
+ *THis function creates a new cache with the given key
+ * and a random data string
+ *
+ * @param model - the model on which the call will be made
+ * @param key - key that needs to be created
+ * @return {Promise<T | never | void>}
+ */
 function createNewCache(model,key) {
     log('Cache miss');
     let random = uid();
-    console.log('random', random);
     return model.create({key: key, data:random})
         .then((response) => {
-            console.log(response);
             return Promise.resolve(response);
         })
         .catch((error) => {
@@ -38,6 +58,13 @@ function createNewCache(model,key) {
 
 }
 
+
+/**
+ * This function is to add support of promises in a callback style function.
+ * It helps us to support API'S with both callback and promises.
+ *
+ * @return {Promise<any | void>}
+ */
 function createPromiseCallback() {
     let cb = null;
     let promise = new Promise(function (resolve, reject) {
@@ -50,7 +77,11 @@ function createPromiseCallback() {
     return cb;
 }
 
-
+/**
+ * Validate the ttl with the current time.
+ * @param doc
+ * @return {boolean}
+ */
 function validateTtl(doc) {
     if(!doc){
         return false;

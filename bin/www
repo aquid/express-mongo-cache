@@ -23,10 +23,11 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
-/**
- * Listen on provided port, on all network interfaces.
- */
 
+/**
+ * Fist initialize the database and then start the server
+ * to listen on the given port
+ */
 datasource.initialize(app, config)
     .then(() => {
         server.listen(port);
