@@ -15,9 +15,9 @@ module.exports.initialize = (app, settings, callback) => {
     if(!mongoose){
         return Promise.reject('Mongo Library not found');
     }
-    app.connector = new MongoConnector(settings);
+    app.set('connector',new MongoConnector(settings));
     if (callback) {
-        app.connector.connect(callback);
+        app.settings.connector.connect(callback);
     }
     return callback.promise;
 };
@@ -38,6 +38,7 @@ let MongoConnector = function(settings) {
     this.port = settings.port || 27017;
     this.username = settings.username || '';
     this.password = settings.password || '';
+    this.limit = settings.limit || 10;
      if (this.debug) {
         log('Settings: %j', settings);
     }

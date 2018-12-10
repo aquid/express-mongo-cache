@@ -11,6 +11,28 @@ exports.createNewCache = createNewCache;
 exports.updateCacheWithTtl = updateCacheWithTtl;
 exports.createPromiseCallback = createPromiseCallback;
 exports.validateTtl = validateTtl;
+exports.refreshTTL = refreshTTL;
+
+/**
+ *  This function updates the ttl value for a given key.
+ * even if the key is not expired  it will update the date
+ * and then send the response
+ *
+ * @param model
+ * @param key
+ * @return {Promise<any | void>}
+ */
+function refreshTTL(model, key) {
+    log('Cache Hit');
+    let random = uid();
+    return model.updateOne({key: key}, {data: random, create: DEFAULT_TTL, date: new Date() })
+        .then((response) => {
+            return model.findOne({key: key});
+        })
+        .catch((error) => {
+            return Promise.reject(error);
+        });
+}
 
 
 /**
@@ -36,18 +58,55 @@ function updateCacheWithTtl(model, key){
         });
 }
 
+/**
+ * This function is used to achieve the overriding feature.
+ * This function updates the last used record sorted by date
+ * and then update the key with a new value that is being passed such
+ * that the total limit of the cache remains same.
+ *
+ * @param model
+ * @param key
+ * @return {Promise<Query | never | void>}
+ */
+function updateOldCacheKey(model, key) {
+    log('Cache overridden');
+    let random = uid();
+    return model.findOne({}).sort({"date": 1})
+        .then((old) => {
+            return model.updateOne({key: old.key}, {key: key, data: random, create: DEFAULT_TTL, date: new Date() })
+        })
+        .then((response) => {
+            return model.findOne({key: key});
+        })
+        .catch((error) => {
+            log(error);
+            return Promise.reject(error);
+        });
+}
+
 
 /**
  *THis function creates a new cache with the given key
- * and a random data string
+ * and a random data string.
  *
+ * It also checks for the total count, if the total
+ * count of the docs have reached threshold limit then
+ * it will call the override function to override previous
+ * cache key with new values.
+ *
+ * @param app - the server object
  * @param model - the model on which the call will be made
  * @param key - key that needs to be created
+ * @param count - total count of the docs
  * @return {Promise<T | never | void>}
  */
-function createNewCache(model,key) {
+function createNewCache(app, model,key, count) {
     log('Cache miss');
     let random = uid();
+    let MAX_LIMIT = app.get('connector').limit;
+    if(count === parseInt(MAX_LIMIT)){ // check if max count is reached
+        return updateOldCacheKey(model, key);
+    }
     return model.create({key: key, data:random})
         .then((response) => {
             return Promise.resolve(response);

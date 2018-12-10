@@ -20,25 +20,31 @@ let docSchema = new Schema({
  * is expired it updates the key first and then
  * send the response
  *
+ * @param app
  * @param key
  * @param callback
  * @return {*}
  */
-docSchema.statics.findOrCreateKey = function(key, callback){
+docSchema.statics.findOrCreateKey = function(app, key, callback){
     callback = callback || utils.createPromiseCallback();
-    this.findOne({key: key})
+    this.aggregate().facet({
+        key: [{$match:{key: key}}],
+        count: [{$count: "total"}]
+    })
         .then((result) => {
-            if(!result){
-                return utils.createNewCache(this, key);
+            result = result[0];
+            result.key = result.key.length && result.key[0] ? result.key[0] : null;
+            result.count = result.count.length && result.count[0].total ? result.count[0].total : 0;
+            if(!result.key){
+                return utils.createNewCache(app, this, key, result.count);
             }
             else {
-                let isValid = utils.validateTtl(result);
+                let isValid = utils.validateTtl(result.key);
                 if(isValid){
-                    debug('Cache Hit');
-                    return Promise.resolve(result);
+                    return utils.refreshTTL(this, result.key.key);
                 }
                 else {
-                    return utils.updateCacheWithTtl(this, result.key);
+                    return utils.updateCacheWithTtl(this, result.key.key);
                 }
             }
         })
@@ -46,6 +52,7 @@ docSchema.statics.findOrCreateKey = function(key, callback){
             callback(null, doc);
         })
         .catch((error) => {
+            console.log(error);
             callback(error);
         });
     return callback.promise;

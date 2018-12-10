@@ -21,6 +21,7 @@ There is a ds-config.js file which has all the database configuration. Please up
     dbName: 'YOUR DB NAME', // test
     host: 'host', // localhost
     port: port, // 27017
+    limit: 10 // limit of the cache size
     ...
 }
 ```

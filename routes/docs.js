@@ -1,6 +1,6 @@
-var express = require('express');
-var router = express.Router();
-let DocModel = require('./../datasource/doc-schema');
+const express = require('express');
+const router = express.Router();
+const DocModel = require('./../datasource/doc-schema');
 
 /**
  * Get All the key that are present in the cache and are not expired
@@ -19,7 +19,7 @@ router.get('/', function(req, res) {
  * Get all the data for a give key passed in the url
  */
 router.get('/:key', function(req, res) {
-    DocModel.findOrCreateKey(req.params.key)
+    DocModel.findOrCreateKey(req.app, req.params.key)
         .then((doc) => {
             res.send(doc);
         })
