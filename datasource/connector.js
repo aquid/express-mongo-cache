@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Promise = require('bluebird');
 const log = require('debug')('fc-express-mongo:datasource:connector');
-const utils = require('./utils');
+const utils = require('../common/lib/utils');
 
 
 /**

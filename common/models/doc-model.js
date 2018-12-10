@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
-const utils = require('./utils');
+const utils = require('../lib/utils');
 const Schema = mongoose.Schema;
 
 /**
  * Schema of the document with key and other values
  */
-let docSchema = new Schema({
+let docModel = new Schema({
     key: {type: String, lowercase: true, required: true, maxlength: 10, minlength: 3, unique: true},
     data:  String,
     ttl: { type: Number, default: 900 }, //TODO: access this from config variable ot ENV
@@ -25,7 +25,7 @@ let docSchema = new Schema({
  * @param callback - {optional}
  * @return {*}
  */
-docSchema.statics.findOrCreateKey = function(app, key, callback){
+docModel.statics.findOrCreateKey = function(app, key, callback){
     callback = callback || utils.createPromiseCallback();
     this.aggregate().facet({
         key: [{$match:{key: key}}],
@@ -66,7 +66,7 @@ docSchema.statics.findOrCreateKey = function(app, key, callback){
  * @param callback - {optional}
  * @return {*}
  */
-docSchema.statics.findAllKey = function(callback){
+docModel.statics.findAllKey = function(callback){
     callback = callback || utils.createPromiseCallback();
     this.find({}, 'key ttl date')
         .then((results) => {
@@ -85,7 +85,7 @@ docSchema.statics.findAllKey = function(callback){
  * Model defined for the given Schema
  * @type {Model}
  */
-let DocModel = mongoose.model('Document', docSchema);
+let Document = mongoose.model('Document', docModel);
 
 
-module.exports  = DocModel;
+module.exports  = Document;

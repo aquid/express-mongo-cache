@@ -1,10 +1,16 @@
 {
   "name": "fc-express-mongo",
   "version": "0.0.0",
-  "private": true,
+  "private": false,
+  "main": "bin/www",
   "scripts": {
     "start": "DEBUG=fc-express-mongo:* node ./bin/www"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aquid/express-mongo-cache.git"
+  },
+  "homepage": "https://github.com/aquid/express-mongo-cache",
   "dependencies": {
     "bluebird": "^3.5.3",
     "cookie-parser": "~1.4.3",
